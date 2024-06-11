@@ -1,0 +1,7 @@
+/.github/ {{ owners }} 
+/src/ {{ owners }} {{ maintainers }}
+/test/ {{ owners }} {{ maintainers }}
+/.JuliaFormatter.toml {{ owners }} 
+/.gitignore {{ owners }} 
+/LICENSE {{ owners }} 
+/Project.toml {{ owners }} 
