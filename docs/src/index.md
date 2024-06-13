@@ -28,7 +28,7 @@ create_project(
     github_username = "bhftbootcamp",
     template = "green", # "general" or "green"
     version = VersionNumber(0, 1, 0),
-    owners = String[],
+    owners = String["bootcampman", ],
     maintainers = String[],
     copyright_holder = "bhftbootcamp",
     commit = true,

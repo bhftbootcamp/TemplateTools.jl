@@ -63,8 +63,8 @@ struct PkgTemplate
             project_dir,
             uuid4(),
             version,
-            join(owners, " "),
-            join(maintainers, " "),
+            join("@" .* owners, " "),
+            join("@" .* maintainers, " "),
             copyright_holder
         )
     end
@@ -72,8 +72,9 @@ end
 
 function create_project(
     template::PkgTemplate;
-    commit::Bool = true,
-    push::Bool = false,
+    branch::String,
+    commit::Bool,
+    push::Bool,
     kw...,
 )
     if !isdir(joinpath(DEPOT_PATH[1], "dev"))
@@ -107,15 +108,15 @@ function create_project(
     if commit
         run(Cmd(`git init -q`, dir = template.project_dir))
         run(Cmd(`git remote add origin $(template.ssh_url)`, dir = template.project_dir))
-        run(Cmd(`git branch -M master`, dir = template.project_dir))
+        run(Cmd(`git branch -M $(branch)`, dir = template.project_dir))
         run(Cmd(`git add .`, dir = template.project_dir))
         run(
             Cmd(
-                `git commit -qm "🤖 $(template.package_name).jl project created"`,
+                `git commit -qm "Create project '$(template.package_name)' 🤖"`,
                 dir = template.project_dir,
             ),
         )
-        push && run(Cmd(`git push -uf origin master`, dir = template.project_dir))
+        push && run(Cmd(`git push -uf origin $(branch)`, dir = template.project_dir))
     end
 
     return true
@@ -127,15 +128,16 @@ end
 A function that generates a package named `package_name` using a given template.
 
 ## Keyword arguments
-- `template::String = "general"`: The template used to create the project (Available: `"general"`, `"green"`).
-- `github_username::String = "bhftbootcamp"`: The GitHub username.
-- `commit::Bool = true`: A flag indicating whether to create a commit after initializing the project.
-- `push::Bool = false`: A flag indicating whether to push the commit to the remote repository.
-- `project_dir::String = joinpath(DEPOT_PATH[1], "dev", package_name)`: The path to the project directory.
-- `version::VersionNumber = VersionNumber(0, 1, 0)`: The version of the project, used for initial setup.
-- `owners::Vector{<:String} = String[]`: A list of project owners.
-- `maintainers::Vector{<:String} = String[]`: A list of project maintainers.
-- `copyright_holder::String = "bhftbootcamp"`: The copyright holder of the project.
+- `template::String = "general"`: Template used to create the project (Available: `"general"`, `"green"`).
+- `github_username::String = "bhftbootcamp"`: GitHub username.
+- `commit::Bool = true`: Create a commit after initializing the project.
+- `push::Bool = false`: Push the commit to the remote repository.
+- `branch::String = "master"`: Branch name to use when setting up the repository. Defaults to "master".
+- `project_dir::String = joinpath(DEPOT_PATH[1], "dev", package_name)`: Path to the project directory.
+- `version::VersionNumber = VersionNumber(0, 1, 0)`: Version of the project, used for initial setup.
+- `owners::Vector{<:String} = String[]`: List of project owners.
+- `maintainers::Vector{<:String} = String[]`: List of project maintainers.
+- `copyright_holder::String = "bhftbootcamp"`: Copyright holder of the project.
 
 ## Examples
 
@@ -145,9 +147,10 @@ julia> create_project(
            github_username = "bhftbootcamp",
            template = "green",
            version = VersionNumber(0, 1, 0),
-           owners = String[],
+           owners = String["bootcampman", ],
            maintainers = String[],
            copyright_holder = "bhftbootcamp",
+           branch = "master",
            commit = true,
            push = false,
        )
@@ -155,6 +158,7 @@ julia> create_project(
 """
 function create_project(
     package_name::String;
+    branch::String = "master",
     commit::Bool = true,
     push::Bool = false,
     kw...,
@@ -163,6 +167,7 @@ function create_project(
         PkgTemplate(package_name; kw...);
         commit = commit,
         push = push,
+        branch = branch,
     )
 end
 
