@@ -41,3 +41,7 @@ create_project(
     push = false,
 )
 ```
+
+## Bug Report 🐞
+
+Found a bug? Please report it by opening an issue on our GitHub repository.
