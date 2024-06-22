@@ -44,4 +44,4 @@ create_project(
 
 ## Bug Report 🐞
 
-Found a bug? Please report it by opening an issue on our GitHub repository.
+Found a bug? Please report it by [opening an issue](https://github.com/bhftbootcamp/TemplateTools.jl/issues) on our GitHub repository.
