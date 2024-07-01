@@ -123,13 +123,15 @@ function create_project(
 end
 
 """
-    create_project(package_name::String; kw...)
+    create_project(package_name::String; template::String, github_username::String, kw...)
 
 A function that generates a package named `package_name` using a given template.
 
-## Keyword arguments
-- `template::String = "general"`: Template used to create the project (Available: `"general"`, `"green"`).
-- `github_username::String = "bhftbootcamp"`: GitHub username.
+## Required keyword arguments
+- `template::String`: Template used to create the project (Available: `"general"`, `"green"`).
+- `github_username::String`: GitHub username.
+
+## Optional keyword arguments
 - `commit::Bool = true`: Create a commit after initializing the project.
 - `push::Bool = false`: Push the commit to the remote repository.
 - `branch::String = "master"`: Branch name to use when setting up the repository. Defaults to "master".
