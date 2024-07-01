@@ -45,8 +45,8 @@ struct PkgTemplate
 
     function PkgTemplate(
         package_name::String;
-        github_username::String = "bhftbootcamp",
-        template::String = "general",
+        github_username::String,
+        template::String,
         project_dir::String = joinpath(DEPOT_PATH[1], "dev", package_name),
         version::VersionNumber = VersionNumber(0, 1, 0),
         owners::Vector{<:String} = String[],
