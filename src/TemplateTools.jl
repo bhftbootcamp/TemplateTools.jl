@@ -45,8 +45,8 @@ struct PkgTemplate
 
     function PkgTemplate(
         package_name::String;
-        github_username::String = "bhftbootcamp",
-        template::String = "general",
+        github_username::String,
+        template::String,
         project_dir::String = joinpath(DEPOT_PATH[1], "dev", package_name),
         version::VersionNumber = VersionNumber(0, 1, 0),
         owners::Vector{<:String} = String[],
@@ -123,13 +123,15 @@ function create_project(
 end
 
 """
-    create_project(package_name::String; kw...)
+    create_project(package_name::String; template::String, github_username::String, kw...)
 
 A function that generates a package named `package_name` using a given template.
 
-## Keyword arguments
-- `template::String = "general"`: Template used to create the project (Available: `"general"`, `"green"`).
-- `github_username::String = "bhftbootcamp"`: GitHub username.
+## Required keyword arguments
+- `template::String`: Template used to create the project (Available: `"general"`, `"green"`).
+- `github_username::String`: GitHub username (for example `bhftbootcamp`).
+
+## Optional keyword arguments
 - `commit::Bool = true`: Create a commit after initializing the project.
 - `push::Bool = false`: Push the commit to the remote repository.
 - `branch::String = "master"`: Branch name to use when setting up the repository. Defaults to "master".
