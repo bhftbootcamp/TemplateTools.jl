@@ -129,7 +129,7 @@ A function that generates a package named `package_name` using a given template.
 
 ## Required keyword arguments
 - `template::String`: Template used to create the project (Available: `"general"`, `"green"`).
-- `github_username::String`: GitHub username.
+- `github_username::String`: GitHub username (for example `bhftbootcamp`).
 
 ## Optional keyword arguments
 - `commit::Bool = true`: Create a commit after initializing the project.
