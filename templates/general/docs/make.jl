@@ -7,8 +7,8 @@ makedocs(;
     modules = [{{ package_name }}],
     sitename = "{{ package_name }}.jl",
     format = Documenter.HTML(;
-        repolink = "{{ http_url }}",
-        canonical = "{{ docs_url }}",
+        repolink = "https://github.com/{{ github_username }}/{{ package_name}}.jl",
+        canonical = "https://{{ github_username }}.github.io/{{ package_name }}.jl",
         edit_link = "master",
         assets = ["assets/favicon.ico"],
         sidebar_sitename = true,  # Set to 'false' if the package logo already contain its name

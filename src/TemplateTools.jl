@@ -1,11 +1,10 @@
 module TemplateTools
 
-export create_project
+export create_project, default_templates
 
 using UUIDs
 
 const WITHOUT_RENDER = [".yml", ".ico"]
-const TEMPLATES_PATH = joinpath(@__DIR__, "..", "templates")
 
 function valid_package_name(package_name::String)
     if !occursin(r"^[A-Z].*$", package_name) || endswith(package_name, ".jl")
@@ -17,25 +16,12 @@ function valid_package_name(package_name::String)
     end
 end
 
-function http_url(github_username::String, package_name::String)
-    return "https://github.com/$(github_username)/$(package_name).jl"
-end
-
-function ssh_url(github_username::String, package_name::String)
-    return "git@github.com:$(github_username)/$(package_name).jl.git"
-end
-
-function docs_url(github_username::String, package_name::String)
-    return "https://$(github_username).github.io/$(package_name).jl"
-end
+default_templates() = joinpath(@__DIR__, "..", "templates")
 
 struct PkgTemplate
     package_name::String
     github_username::String
     template_dir::String
-    http_url::String
-    ssh_url::String
-    docs_url::String
     project_dir::String
     uuid::UUID
     version::VersionNumber
@@ -47,6 +33,7 @@ struct PkgTemplate
         package_name::String;
         github_username::String,
         template::String,
+        templates_dir::String = default_templates(),
         project_dir::String = joinpath(DEPOT_PATH[1], "dev", package_name),
         version::VersionNumber = VersionNumber(0, 1, 0),
         owners::Vector{<:String} = String[],
@@ -56,10 +43,7 @@ struct PkgTemplate
         return new(
             valid_package_name(package_name),
             github_username,
-            joinpath(TEMPLATES_PATH, template),
-            http_url(github_username, package_name),
-            ssh_url(github_username, package_name),
-            docs_url(github_username, package_name),
+            joinpath(templates_dir, template),
             project_dir,
             uuid4(),
             version,
@@ -73,6 +57,7 @@ end
 function create_project(
     template::PkgTemplate;
     branch::String,
+    repository_ssh_url::String,
     commit::Bool,
     push::Bool,
     kw...,
@@ -81,8 +66,12 @@ function create_project(
         mkdir(joinpath(DEPOT_PATH[1], "dev"))
     end
 
+    if !isdir(template.template_dir)
+        error("The template directory $(template.template_dir) does not exist.")
+    end
+
     if isdir(template.project_dir) || isfile(template.project_dir)
-        error("$(template.project_dir) already exists.")
+        error("The directory or file $(template.project_dir) already exists.")
     else
         mkdir(template.project_dir)
     end
@@ -107,12 +96,12 @@ function create_project(
 
     if commit
         run(Cmd(`git init -q`, dir = template.project_dir))
-        run(Cmd(`git remote add origin $(template.ssh_url)`, dir = template.project_dir))
+        run(Cmd(`git remote add origin $(repository_ssh_url)`, dir = template.project_dir))
         run(Cmd(`git branch -M $(branch)`, dir = template.project_dir))
         run(Cmd(`git add .`, dir = template.project_dir))
         run(
             Cmd(
-                `git commit -qm "Create project '$(template.package_name)' 🤖"`,
+                `git commit -qm "Create project $(template.package_name) 🤖"`,
                 dir = template.project_dir,
             ),
         )
@@ -160,13 +149,20 @@ julia> create_project(
 """
 function create_project(
     package_name::String;
+    github_username::String,
     branch::String = "master",
+    repository_ssh_url::String = "git@github.com:$(github_username)/$(package_name).jl.git",
     commit::Bool = true,
     push::Bool = false,
     kw...,
 )
     return create_project(
-        PkgTemplate(package_name; kw...);
+        PkgTemplate(
+            package_name;
+            github_username = github_username,
+            kw...,
+        );
+        repository_ssh_url = repository_ssh_url,
         commit = commit,
         push = push,
         branch = branch,
