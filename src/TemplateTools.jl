@@ -117,6 +117,7 @@ end
 A function that generates a package named `package_name` using a given template.
 
 ## Required keyword arguments
+- `package_name::String`: The name of the package to be created, used as the directory name. Use names like `Foo`; do not use extensions like `Foo.jl`.
 - `template::String`: Template used to create the project (Available: `"general"`, `"green"`).
 - `github_username::String`: GitHub username (for example `bhftbootcamp`).
 
@@ -134,7 +135,7 @@ A function that generates a package named `package_name` using a given template.
 
 ```julia-repl
 julia> create_project(
-           "NumExpr";
+           package_name = "NumExpr",
            github_username = "bhftbootcamp",
            template = "green",
            version = VersionNumber(0, 1, 0),
@@ -147,8 +148,8 @@ julia> create_project(
        )
 ```
 """
-function create_project(
-    package_name::String;
+function create_project(;
+    package_name::String,
     github_username::String,
     branch::String = "master",
     repository_ssh_url::String = "git@github.com:$(github_username)/$(package_name).jl.git",
