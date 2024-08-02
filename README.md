@@ -30,7 +30,7 @@ A new package can be created as follows:
 using TemplateTools
 
 create_project(
-    "NumExpr";
+    package_name = "NumExpr",
     github_username = "bhftbootcamp",
     template = "green", # "general" or "green"
     version = VersionNumber(0, 1, 0),
@@ -42,6 +42,6 @@ create_project(
 )
 ```
 
-## Bug Report 🐞
+## Bug Report
 
 Found a bug? Please report it by [opening an issue](https://github.com/bhftbootcamp/TemplateTools.jl/issues) on our GitHub repository.
