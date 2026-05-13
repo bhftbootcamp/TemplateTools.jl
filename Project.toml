@@ -1,9 +1,12 @@
 name = "TemplateTools"
 uuid = "4b1000a4-b9b7-4319-98e4-c9b821a8e3b0"
-version = "2.5.0"
+version = "2.6.0"
 
 [deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Jinja2Cpp = "53d8605c-dcf1-482a-b927-58e959abfe3c"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
-julia = "1.8"
+Jinja2Cpp = "0.1"
+julia = "1.10"

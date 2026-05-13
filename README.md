@@ -32,14 +32,56 @@ using TemplateTools
 create_project(
     package_name = "NumExpr",
     github_username = "bhftbootcamp",
-    template = "green", # "general" or "green"
-    version = VersionNumber(0, 1, 0),
-    owners = String["bootcampman", ],
-    maintainers = String[],
-    copyright_holder = "bhftbootcamp",
+    template = "green",
+    owners = ["bootcampman"],
     commit = true,
     push = false,
 )
+```
+
+## Templates
+
+Two templates are available:
+
+| | `"green"` | `"general"` |
+|---|---|---|
+| Registry | [Green](https://github.com/bhftbootcamp/Green) (private) | [General](https://github.com/JuliaRegistries/General) (public) |
+| CI | Coverage.yml, Documentation.yml | CI.yml (tests + docs) |
+| Release | Registry.yml, ReleaseTag.yml | TagBot.yml |
+| Extras | DocPreviewCleanup.yml, CompatHelper.yml | CompatHelper.yml |
+
+Both templates generate the following project structure:
+
+```
+PackageName.jl/
+├── .github/
+│   ├── CODEOWNERS
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── dependabot.yml
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   └── workflows/
+│       └── ...                  # see table above
+├── .gitignore
+├── .JuliaFormatter.toml
+├── LICENSE
+├── Project.toml
+├── README.md
+├── docs/
+│   ├── Project.toml
+│   ├── make.jl
+│   └── src/
+│       ├── assets/
+│       │   └── favicon.ico
+│       ├── index.md
+│       └── pages/
+│           └── content.md
+├── src/
+│   └── PackageName.jl
+└── test/
+    ├── Project.toml
+    └── runtests.jl
 ```
 
 ## Bug Report

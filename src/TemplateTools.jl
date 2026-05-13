@@ -3,8 +3,11 @@ module TemplateTools
 export create_project, default_templates
 
 using UUIDs
+using Dates
+using Jinja2Cpp
 
-const WITHOUT_RENDER = [".yml", ".ico"]
+const SKIP_RENDER_EXTENSIONS = [".yml", ".ico"]
+const INTERNAL_FIELDS = (:template_dir, :project_dir)
 
 function valid_package_name(package_name::String)
     if !occursin(r"^[A-Z].*$", package_name) || endswith(package_name, ".jl")
@@ -12,7 +15,7 @@ function valid_package_name(package_name::String)
             "Invalid package name: '$package_name'. Name must be in CamelCase and not end with '.jl'.",
         )
     else
-        package_name
+        return package_name
     end
 end
 
@@ -49,10 +52,31 @@ struct PkgTemplate
             version,
             join("@" .* owners, " "),
             join("@" .* maintainers, " "),
-            copyright_holder
+            copyright_holder,
         )
     end
 end
+
+function _template_values(template::PkgTemplate)
+    values = Dict{String,Any}()
+    for name in propertynames(template)
+        name in INTERNAL_FIELDS && continue
+        values[string(name)] = string(getproperty(template, name))
+    end
+    values["year"] = string(year(today()))
+    return values
+end
+
+function _render(source::String, values::Dict{String,Any}; name::String = "")
+    tmpl = Jinja2Template(source; name)
+    try
+        return jinja2_render(tmpl, values)
+    finally
+        close(tmpl)
+    end
+end
+
+_should_render(path::AbstractString) = !any(ext -> endswith(path, ext), SKIP_RENDER_EXTENSIONS)
 
 function create_project(
     template::PkgTemplate;
@@ -60,33 +84,27 @@ function create_project(
     repository_ssh_url::String,
     commit::Bool,
     push::Bool,
-    kw...,
 )
-    if !isdir(joinpath(DEPOT_PATH[1], "dev"))
-        mkdir(joinpath(DEPOT_PATH[1], "dev"))
-    end
-
     if !isdir(template.template_dir)
         error("The template directory $(template.template_dir) does not exist.")
     end
 
     if isdir(template.project_dir) || isfile(template.project_dir)
         error("The directory or file $(template.project_dir) already exists.")
-    else
-        mkdir(template.project_dir)
     end
+
+    mkpath(template.project_dir)
+    values = _template_values(template)
 
     for (root, dirs, files) in walkdir(template.template_dir)
         for file in files
             source_path = joinpath(root, file)
-            txt = read(source_path, String)
             source_name = relpath(source_path, template.template_dir)
-            if !any(endswith.(source_path, WITHOUT_RENDER))
-                for prop in propertynames(template)
-                    val = getfield(template, prop)
-                    txt = replace(txt, Regex("{{\\s*($prop)\\s*}}") => val)
-                    source_name = replace(source_name, Regex("{{\\s*($prop)\\s*}}") => val)
-                end
+            if _should_render(source_path)
+                txt = _render(read(source_path, String), values; name = source_name)
+                source_name = _render(source_name, values; name = "path")
+            else
+                txt = read(source_path)
             end
             target_path = joinpath(template.project_dir, source_name)
             mkpath(dirname(target_path))
@@ -95,24 +113,20 @@ function create_project(
     end
 
     if commit
-        run(Cmd(`git init -q`, dir = template.project_dir))
-        run(Cmd(`git remote add origin $(repository_ssh_url)`, dir = template.project_dir))
-        run(Cmd(`git branch -M $(branch)`, dir = template.project_dir))
-        run(Cmd(`git add .`, dir = template.project_dir))
-        run(
-            Cmd(
-                `git commit -qm "Create project $(template.package_name) 🤖"`,
-                dir = template.project_dir,
-            ),
-        )
-        push && run(Cmd(`git push -uf origin $(branch)`, dir = template.project_dir))
+        dir = template.project_dir
+        run(Cmd(`git init -q`; dir))
+        run(Cmd(`git remote add origin $(repository_ssh_url)`; dir))
+        run(Cmd(`git branch -M $(branch)`; dir))
+        run(Cmd(`git add .`; dir))
+        run(Cmd(`git commit -qm "Create project $(template.package_name) 🤖"`; dir))
+        push && run(Cmd(`git push -uf origin $(branch)`; dir))
     end
 
     return true
 end
 
 """
-    create_project(package_name::String; template::String, github_username::String, kw...)
+    create_project(; package_name, template, github_username, kw...)
 
 A function that generates a package named `package_name` using a given template.
 

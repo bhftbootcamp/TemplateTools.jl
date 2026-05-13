@@ -1,8 +1,8 @@
 name = "{{ package_name }}"
 uuid = "{{ uuid }}"
-version = "0.1.0"
+version = "{{ version }}"
 
 [deps]
 
 [compat]
-julia = "1.8"
+julia = "1.10"

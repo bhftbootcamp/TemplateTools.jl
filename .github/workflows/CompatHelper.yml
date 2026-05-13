@@ -17,8 +17,8 @@ jobs:
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           registry: bhftbootcamp/Green
-      - uses: julia-actions/setup-julia@v2
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/setup-julia@v3
+      - uses: julia-actions/cache@v3
       - name: Configure CompatHelper
         run: |
           julia -e '
@@ -28,5 +28,4 @@ jobs:
             CompatHelper.main(use_existing_registries = true)
           '
         env:
-          GITHUB_TOKEN: ${{ github.token }} # Token required to create a pull request to the same repository
-          
+          GITHUB_TOKEN: ${{ github.token }}
