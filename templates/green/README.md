@@ -13,7 +13,7 @@
 If you haven't installed our [local registry](https://github.com/bhftbootcamp/Green) yet, do that first:
 
 ```
-] registry add https://github.com/{{ github_username }}/Green.git
+] registry add https://github.com/bhftbootcamp/Green.git
 ```
 
 To install {{ package_name }}, simply use the Julia package manager:

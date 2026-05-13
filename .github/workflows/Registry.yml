@@ -5,7 +5,7 @@ on:
     branches:
       - master
   workflow_dispatch:
-    
+
 jobs:
   registry:
     name: Update registry
@@ -19,10 +19,10 @@ jobs:
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           registry: bhftbootcamp/Green
-      - uses: julia-actions/setup-julia@v2
+      - uses: julia-actions/setup-julia@v3
         with:
           version: 1.9
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: Configure Git
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq git
@@ -32,13 +32,13 @@ jobs:
         run: |
           julia -e '
             using Pkg
-            
+
             Pkg.add("LocalRegistry")
             Pkg.develop(url = "git@github.com:${{ github.repository }}.git")
 
             using LocalRegistry
             using TOML
-    
+
             package_name = match(r"^.*/(.*?)(\.jl)?(\.git)?$", "${{ github.repository }}")
             package_name == nothing && error("Invalid package name: ${{ github.repository }}")
             package_name = package_name[1]
@@ -46,15 +46,14 @@ jobs:
             package_dir = joinpath(DEPOT_PATH[1], "dev", package_name)
             project_toml = TOML.parsefile(joinpath(package_dir, "Project.toml"))
             version = VersionNumber(project_toml["version"])
-    
+
             LocalRegistry.register(
                 package_name,
                 repo = "https://github.com/${{ github.repository }}.git",
                 registry = "git@github.com:bhftbootcamp/Green.git",
                 ignore_reregistration = true,
             )
-  
+
             run(Cmd(`git tag -f "v$version"`, dir = package_dir))
             run(Cmd(`git push --force origin "v$version"`, dir = package_dir))
             '
-            
